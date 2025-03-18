@@ -1,0 +1,81 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+name: Documentation Build
+
+on:
+  workflow_call:
+    inputs:
+      retention-days:
+        description: "Number of days to retain the artifact"
+        required: false
+        default: 1
+        type: number
+
+jobs:
+  docs-build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout repository (Handle all events)
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.9.1
+
+      - name: Install Graphviz
+        run: sudo apt update && sudo apt install -y graphviz
+
+      - name: Build documentation
+        run: |
+          bazel build //docs:github-pages && cp bazel-bin/docs/github-pages.tar .
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: github-pages-${{ github.event.pull_request.head.sha || github.sha }}
+          path: github-pages.tar
+          retention-days: ${{ inputs.retention-days }}
+          if-no-files-found: error
+
+  docs-deploy:
+    name: Deploy Documentation to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: docs-build
+    permissions:
+      pages: write
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Download documentation artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: github-pages-${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Untar documentation artifact
+        run: mkdir -p extracted_docs && tar -xf github-pages.tar -C extracted_docs
+
+      - name: Deploy 🚀
+        id: pages-deployment
+        uses: ./.github/actions/deploy-versioned-pages
+        with:
+          source_folder: extracted_docs    
