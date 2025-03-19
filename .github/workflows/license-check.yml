@@ -1,0 +1,111 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+name: License Check
+
+on:
+  workflow_call:
+    inputs:
+      repo-url:
+        description: "Repository URL"
+        required: true
+        type: string
+    secrets:
+      gitlab-api-token:
+        description: "Eclipse GitLab API Token for license verification"
+        required: false
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository (Handle all events)
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.9.1
+
+      - name: Run License Checks
+        run: |
+          set +e  # Allow execution to continue even if a command fails
+          OUTPUT=""
+          EXIT_CODE=0
+
+          # Use org secret as fallback if gitlab-api-token is not provided
+          TOKEN="${{ secrets.gitlab-api-token || secrets.ECLIPSE_GITLAB_API_TOKEN }}"
+          
+          # Fail the job if the secret is not set
+          if [[ -z "$TOKEN" ]]; then
+            echo "ERROR: GitLab API token is missing. Ensure 'ECLIPSE_GITLAB_API_TOKEN' is set as an org secret"
+            exit 1
+          fi
+
+          for TYPE in ${{ inputs.project-types }}; do
+            CMD="bazel license-check -- -review -project 'automotive.score' -repo '${{ inputs.repo-url }}' -token '$TOKEN'"
+            
+            echo "Running: $CMD"
+            CHECK_OUTPUT=$($CMD 2>&1)
+            CHECK_EXIT_CODE=$?
+
+            # Append output
+            OUTPUT="$OUTPUT\n\n[License Check: $TYPE]\n$CHECK_OUTPUT"
+            
+            # Update exit code if any check fails
+            if [ $CHECK_EXIT_CODE -ne 0 ]; then
+              EXIT_CODE=$CHECK_EXIT_CODE
+            fi
+          done
+          
+          echo -e "$OUTPUT" | tee license-check-output.txt
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_ENV
+          echo "output<<EOF" >> $GITHUB_ENV
+          echo -e "$OUTPUT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Find Existing Comment
+        if: github.event.pull_request
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: License Check Results
+
+      - name: Comment on PR with License Check Results
+        if: github.event.pull_request
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ### License Check Results
+            🚀 The **license check** job ran for the following project types: **${{ inputs.project-types }}**.
+
+            **Status:** ${{ env.exit_code == 0 && '✅ Passed' || '⚠️ Needs Review' }}
+
+            <details>
+            <summary>Click to expand output</summary>
+
+            ```
+            ${{ env.output }}
+            ```
+
+            </details>
+          reactions: eyes
+          edit-mode: replace
