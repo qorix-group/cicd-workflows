@@ -11,13 +11,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-name: Unit Tests 
+name: Tests 
 on:
   workflow_call:
 
 jobs:
   unit-tests:
-    name: Unit Test Execution
+    name: Test Execution
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,7 +26,7 @@ jobs:
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.9.1
 
-      - name: Run Unit Tests via Bazel
+      - name: Run Tests via Bazel
         run: |
           bazel test //...
 

@@ -60,7 +60,7 @@ runs:
         touch deploy_root/.nojekyll
 
         # Add the target folder to the versions file
-        BASE_REPO="https://github.com/${{ github.repository }}.git"
+        BASE_REPO="${{ github.server_url }}/${{ github.repository }}.git"
 
         echo "Fetching gh-pages from BASE_REPO: $BASE_REPO"
         git remote add base "$BASE_REPO" || git remote set-url base "$BASE_REPO"

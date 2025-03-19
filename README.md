@@ -2,7 +2,7 @@
 
 This repository contains **reusable GitHub Actions workflows** designed to standardize CI/CD processes across multiple repositories
 in `SCORE`. 
-These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, unit tests, and copyright verification** ( **TODO** will need to be updated)
+These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, tests, and copyright verification** ( **TODO** will need to be updated)
 
 ## Available Workflows
 
@@ -11,7 +11,7 @@ These workflows integrate with **Bazel** and provide a consistent way to run **d
 | **Documentation Build** | Builds project documentation and deploys it to GitHub Pages |
 | **License Check** | Verifies OSS licenses and compliance |
 | **Static Code Analysis** | Runs Clang-Tidy, Clippy, Pylint, and other linters based on project type |
-| **Unit Tests** | Executes unit tests using GoogleTest, Rust test or pytest |
+| **Tests** | Executes tests using GoogleTest, Rust test or pytest |
 | **Copyright Check** | Ensures all source files have the required copyright headers |
 
 ---
@@ -236,10 +236,10 @@ esac
 
 ---
 
-### **4️ Unit Tests Workflow**
+### **4️ Tests Workflow**
 **Usage Example**
 ```yaml
-name: Unit Test CI
+name: Test CI
 
 on:
   pull_request:
@@ -248,8 +248,8 @@ on:
       - main
 
 jobs:
-  unit-tests:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/unit-tests.yml@main
+  tests:
+    uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@main
 ```
 This workflow:
 ✅ Runs **GoogleTest** for C++  
@@ -310,7 +310,7 @@ bazel_dep(name = "bazel_rules", version = "1.0.0")
 ##  How to Update Workflows
 Since these workflows are centralized, updates in the `ci_cd_repo` repository will **automatically apply to all repositories using them**. If you need a specific version, reference a **tagged release** instead of `main`:
 ```yaml
-uses: eclipse-score/ci_cd_repo/.github/workflows/unit-tests.yml@v1.0.0
+uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@v1.0.0
 ```
 
 ---
