@@ -15,6 +15,12 @@ name: Copyright Check
 
 on:
   workflow_call:
+    inputs:
+      bazel-target:
+        description: "Custom Bazel target to run (e.g.: 'run //:copyright-check')"
+        required: false
+        default: "run //:copyright-check"
+        type: string
 
 jobs:
   copyright-check:
@@ -26,6 +32,7 @@ jobs:
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.9.1
 
-      - name: Run Copyright Checks
+      - name: Run Copyright Check
         run: |
-          bazel copyright-check
+          echo "Running: bazel ${{ inputs.bazel-target }}"
+          bazel ${{ inputs.bazel-target }}
