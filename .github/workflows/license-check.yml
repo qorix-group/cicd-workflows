@@ -61,7 +61,7 @@ jobs:
             exit 1
           fi
 
-          CMD="bazel ${{ inputs.bazel-target }} -- -review -project 'automotive.score' -repo '${{ inputs.repo-url }}' -token '$TOKEN'"
+          CMD="bazel ${{ inputs.bazel-target }} -- -review -project automotive.score -repo ${{ inputs.repo-url }} -token $TOKEN"
           echo "Running: $CMD"
           
           CHECK_OUTPUT=$($CMD 2>&1)
