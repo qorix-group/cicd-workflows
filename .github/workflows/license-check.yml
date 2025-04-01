@@ -20,6 +20,11 @@ on:
         description: "Repository URL"
         required: true
         type: string
+      bazel-target:
+        description: "Custom Bazel target to run (e.g., 'run //:license-check')"
+        required: false
+        default: "run //:license-check"
+        type: string
     secrets:
       gitlab-api-token:
         description: "Eclipse GitLab API Token for license verification"
@@ -41,7 +46,7 @@ jobs:
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.9.1
 
-      - name: Run License Checks
+      - name: Run License Check via Bazel
         run: |
           set +e  # Allow execution to continue even if a command fails
           OUTPUT=""
@@ -56,21 +61,16 @@ jobs:
             exit 1
           fi
 
-          for TYPE in ${{ inputs.project-types }}; do
-            CMD="bazel license-check -- -review -project 'automotive.score' -repo '${{ inputs.repo-url }}' -token '$TOKEN'"
-            
-            echo "Running: $CMD"
-            CHECK_OUTPUT=$($CMD 2>&1)
-            CHECK_EXIT_CODE=$?
+          CMD="bazel ${{ inputs.bazel-target }} -- -review -project automotive.score -repo ${{ inputs.repo-url }} -token $TOKEN"
+          echo "Running: $CMD"
+          
+          CHECK_OUTPUT=$($CMD 2>&1)
+          CHECK_EXIT_CODE=$?
 
-            # Append output
-            OUTPUT="$OUTPUT\n\n[License Check: $TYPE]\n$CHECK_OUTPUT"
-            
-            # Update exit code if any check fails
-            if [ $CHECK_EXIT_CODE -ne 0 ]; then
-              EXIT_CODE=$CHECK_EXIT_CODE
-            fi
-          done
+          OUTPUT="[License Check Output]\n$CHECK_OUTPUT"
+          if [ $CHECK_EXIT_CODE -ne 0 ]; then
+            EXIT_CODE=$CHECK_EXIT_CODE
+          fi
           
           echo -e "$OUTPUT" | tee license-check-output.txt
           echo "exit_code=$EXIT_CODE" >> $GITHUB_ENV
@@ -95,7 +95,10 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ### License Check Results
-            🚀 The **license check** job ran for the following project types: **${{ inputs.project-types }}**.
+            🚀 The **license check** job ran with the Bazel command:
+            ```bash
+            bazel ${{ inputs.bazel-target }}
+            ```
 
             **Status:** ${{ env.exit_code == 0 && '✅ Passed' || '⚠️ Needs Review' }}
 
