@@ -15,6 +15,13 @@ name: Static Code Analysis
 
 on:
   workflow_call:
+    inputs:
+      bazel-target:
+        description: "Custom Bazel target to run (e.g.: 'run //:static-analysis')"
+        required: false
+        default: "run //:static-analysis"
+        type: string
+
 jobs:
   static-analysis:
     name: Static Code Analysis
@@ -28,4 +35,5 @@ jobs:
 
       - name: Run Static Analysis via Bazel
         run: |
-          bazel static-analysis
+          echo "Running: bazel ${{ inputs.bazel-target }}"
+          bazel ${{ inputs.bazel-target }}
