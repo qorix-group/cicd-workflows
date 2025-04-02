@@ -18,7 +18,7 @@ on:
     inputs:
       repo-url:
         description: "Repository URL"
-        required: true
+        required: false
         type: string
       bazel-target:
         description: "Custom Bazel target to run (e.g., 'run //:license-check')"
@@ -49,6 +49,12 @@ jobs:
       - name: Run License Check via Bazel
         run: |
           set +e  # Allow execution to continue even if a command fails
+
+          REPO_URL="${{ inputs.repo-url }}"
+          if [[ -z "$REPO_URL" ]]; then
+            REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          fi
+
           OUTPUT=""
           EXIT_CODE=0
 
@@ -61,7 +67,7 @@ jobs:
             exit 1
           fi
 
-          CMD="bazel ${{ inputs.bazel-target }} -- -review -project automotive.score -repo ${{ inputs.repo-url }} -token $TOKEN"
+          CMD="bazel ${{ inputs.bazel-target }} -- -review -project automotive.score -repo $REPO_URL -token $TOKEN"
           echo "Running: $CMD"
           
           CHECK_OUTPUT=$($CMD 2>&1)
