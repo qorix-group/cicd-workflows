@@ -34,7 +34,7 @@ on:
 
 jobs:
   docs:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/docs.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     with:
       retention-days: 3
 ```
@@ -61,7 +61,7 @@ on:
 
 jobs:
   license-check:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/license-check.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/license-check.yml@main
     with:
       repo-url: "${{ github.server_url }}/${{ github.repository }}" # optional, this is the default
       bazel-target: "run //:license-check" # optional, this is the default
@@ -93,7 +93,7 @@ on:
 
 jobs:
   static-analysis:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/static-analysis.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/static-analysis.yml@main
     with:
       bazel-target: "run //:static-analysis" # optional, this is the default
 ```
@@ -121,7 +121,7 @@ on:
 
 jobs:
   tests:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
 ```
 
 This workflow:
@@ -144,7 +144,7 @@ on:
 
 jobs:
   copyright-check:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/copyright.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@main
     with:
       bazel-target: "run //:copyright-check" # optional, this is the default
 ```
@@ -159,9 +159,9 @@ This workflow:
 ---
 
 ##  How to Update Workflows
-Since these workflows are centralized, updates in the `ci_cd_repo` repository will **automatically apply to all repositories using them**. If you need a specific version, reference a **tagged release** instead of `main`:
+Since these workflows are centralized, updates in the `cicd-workflows` repository will **automatically apply to all repositories using them**. If you need a specific version, reference a **tagged release** instead of `main`:
 ```yaml
-uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@v1.0.0
+uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@v1.0.0
 ```
 
 ---
