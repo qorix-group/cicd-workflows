@@ -66,7 +66,7 @@ jobs:
       repo-url: "${{ github.server_url }}/${{ github.repository }}" # optional, this is the default
       bazel-target: "run //:license-check" # optional, this is the default
     secrets:
-      gitlab-api-token: ${{ secrets.ECLIPSE_GITLAB_API_TOKEN }} #optional
+      dash-api-token: ${{ secrets.ECLIPSE_GITLAB_API_TOKEN }} # mandatory - the Eclispe DASH API token 
 ```
 
 This workflow:
