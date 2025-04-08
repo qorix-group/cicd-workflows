@@ -1,18 +1,18 @@
-
 # Reusable GitHub Actions Workflows
 
 This repository contains **reusable GitHub Actions workflows** designed to standardize CI/CD processes across multiple repositories
-in `SCORE`. 
-These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, tests, and copyright verification**
+in `SCORE`.  
+These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, tests, formatting checks and copyright verification**
 
 ## Available Workflows
 
 | Workflow | Description |
-|----------|------------|
+|----------|-------------|
 | **Documentation Build** | Builds project documentation and deploys it to GitHub Pages |
 | **License Check** | Verifies OSS licenses and compliance |
 | **Static Code Analysis** | Runs Clang-Tidy, Clippy, Pylint, and other linters based on project type |
 | **Tests** | Executes tests using GoogleTest, Rust test or pytest |
+| **Formatting Check** | Verifies code formatting using Bazel-based tools |
 | **Copyright Check** | Ensures all source files have the required copyright headers |
 
 ---
@@ -34,7 +34,7 @@ on:
 
 jobs:
   docs:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/docs.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     with:
       retention-days: 3
 ```
@@ -61,7 +61,7 @@ on:
 
 jobs:
   license-check:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/license-check.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/license-check.yml@main
     with:
       repo-url: "${{ github.server_url }}/${{ github.repository }}" # optional, this is the default
       bazel-target: "run //:license-check" # optional, this is the default
@@ -93,12 +93,12 @@ on:
 
 jobs:
   static-analysis:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/static-analysis.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/static-analysis.yml@main
     with:
       bazel-target: "run //:static-analysis" # optional, this is the default
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs **Clang-Tidy** for C++  
 ✅ Runs **Rust Clippy, Cargo Audit, and Cargo Geiger** for Rust  
 ✅ Runs **Pylint** for Python  
@@ -121,10 +121,10 @@ on:
 
 jobs:
   tests:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs **GoogleTest** for C++  
 ✅ Runs **Rust Unit Tests**  
 ✅ Runs **pytest** for Python  
@@ -144,12 +144,12 @@ on:
 
 jobs:
   copyright-check:
-    uses: eclipse-score/ci_cd_repo/.github/workflows/copyright.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@main
     with:
       bazel-target: "run //:copyright-check" # optional, this is the default
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs a **Bazel-based copyright**
 ✅ Ensures all source files have **Eclipse Foundation** headers
 
@@ -158,10 +158,37 @@ This workflow:
 
 ---
 
-##  How to Update Workflows
-Since these workflows are centralized, updates in the `ci_cd_repo` repository will **automatically apply to all repositories using them**. If you need a specific version, reference a **tagged release** instead of `main`:
+### **6️ Formatting Check Workflow**
+**Usage Example**
 ```yaml
-uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@v1.0.0
+name: Formatting Check CI
+
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  formatting-check:
+    uses: eclipse-score/cicd-workflows/.github/workflows/format-check.yml@main
+    with:
+      bazel-target: "test //:format.check" # optional, this is the default
+```
+
+This workflow:  
+✅ Runs a **Bazel-based formatting check** (e.g., `buildifier`, `clang-format`, etc.)  
+✅ Can be integrated into Pull Requests and Merge Queues  
+✅ Ensures code adheres to formatting rules before merge
+
+> ℹ️ **Note:** You can override the Bazel command using the `bazel-target` input.  
+> **Default:** `test //:format.check`
+
+---
+
+##  How to Update Workflows
+Since these workflows are centralized, updates in the `cicd-workflows` repository will **automatically apply to all repositories using them**. If you need a specific version, reference a **tagged release** instead of `main`:
+```yaml
+uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@v1.0.0
 ```
 
 ---
@@ -169,4 +196,4 @@ uses: eclipse-score/ci_cd_repo/.github/workflows/tests.yml@v1.0.0
 ### **Summary**
 ✅ **Standardized** CI/CD workflows across all projects  
 ✅ **Reusable & Maintainable** with centralized updates  
-✅ **Bazel-powered** for consistent testing & analysis  
+✅ **Bazel-powered** for consistent testing & analysis
