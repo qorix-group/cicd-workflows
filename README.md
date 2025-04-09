@@ -1,18 +1,18 @@
-
 # Reusable GitHub Actions Workflows
 
 This repository contains **reusable GitHub Actions workflows** designed to standardize CI/CD processes across multiple repositories
-in `SCORE`. 
-These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, tests, and copyright verification**
+in `SCORE`.  
+These workflows integrate with **Bazel** and provide a consistent way to run **documentation builds, license checks, static analysis, tests, formatting checks and copyright verification**
 
 ## Available Workflows
 
 | Workflow | Description |
-|----------|------------|
+|----------|-------------|
 | **Documentation Build** | Builds project documentation and deploys it to GitHub Pages |
 | **License Check** | Verifies OSS licenses and compliance |
 | **Static Code Analysis** | Runs Clang-Tidy, Clippy, Pylint, and other linters based on project type |
 | **Tests** | Executes tests using GoogleTest, Rust test or pytest |
+| **Formatting Check** | Verifies code formatting using Bazel-based tools |
 | **Copyright Check** | Ensures all source files have the required copyright headers |
 
 ---
@@ -98,7 +98,7 @@ jobs:
       bazel-target: "run //:static-analysis" # optional, this is the default
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs **Clang-Tidy** for C++  
 ✅ Runs **Rust Clippy, Cargo Audit, and Cargo Geiger** for Rust  
 ✅ Runs **Pylint** for Python  
@@ -124,7 +124,7 @@ jobs:
     uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs **GoogleTest** for C++  
 ✅ Runs **Rust Unit Tests**  
 ✅ Runs **pytest** for Python  
@@ -149,12 +149,39 @@ jobs:
       bazel-target: "run //:copyright-check" # optional, this is the default
 ```
 
-This workflow:
+This workflow:  
 ✅ Runs a **Bazel-based copyright**
 ✅ Ensures all source files have **Eclipse Foundation** headers
 
 > ℹ️ **Note:** You can override the Bazel command using the `bazel-target` input.  
 > **Default:** `run //:copyright-check`
+
+---
+
+### **6️ Formatting Check Workflow**
+**Usage Example**
+```yaml
+name: Formatting Check CI
+
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  formatting-check:
+    uses: eclipse-score/cicd-workflows/.github/workflows/format-check.yml@main
+    with:
+      bazel-target: "test //:format.check" # optional, this is the default
+```
+
+This workflow:  
+✅ Runs a **Bazel-based formatting check** (e.g., `buildifier`, `clang-format`, etc.)  
+✅ Can be integrated into Pull Requests and Merge Queues  
+✅ Ensures code adheres to formatting rules before merge
+
+> ℹ️ **Note:** You can override the Bazel command using the `bazel-target` input.  
+> **Default:** `test //:format.check`
 
 ---
 
@@ -169,4 +196,4 @@ uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@v1.0.0
 ### **Summary**
 ✅ **Standardized** CI/CD workflows across all projects  
 ✅ **Reusable & Maintainable** with centralized updates  
-✅ **Bazel-powered** for consistent testing & analysis  
+✅ **Bazel-powered** for consistent testing & analysis
