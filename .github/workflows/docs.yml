@@ -21,6 +21,11 @@ on:
         required: false
         default: 1
         type: number
+      workflow-version:
+        description: "Version or branch to checkout"
+        required: false
+        default: "main"
+        type: string
 
 jobs:
   docs-build:
@@ -34,6 +39,14 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      - name: Checkout action
+        uses: actions/checkout@v4.2.2
+        with:
+          # current repo name
+          repository: eclipse-score/cicd-workflows
+          ref: ${{ inputs.workflow-version }}
+          path: ./cicd-workflows
 
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.9.1
