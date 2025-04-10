@@ -48,8 +48,12 @@ jobs:
           ref: ${{ inputs.workflow-version }}
           path: ./cicd-workflows
 
-      - name: Setup Bazel
-        uses: bazel-contrib/setup-bazel@0.9.1
+      - name: Setup Bazel with shared caching
+        uses: bazel-contrib/setup-bazel@0.14.0
+        with:
+          disk-cache: true
+          repository-cache: true
+          bazelisk-cache: true
 
       - name: Install Graphviz
         run: sudo apt update && sudo apt install -y graphviz
