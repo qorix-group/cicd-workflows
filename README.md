@@ -193,6 +193,28 @@ uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@v1.0.0
 
 ---
 
+## ⚡️ Bazel Setup with Shared Caching
+
+To improve performance and reduce redundant downloads across workflow runs, the reusable workflows configure Bazel with shared caching:
+
+```yaml
+- name: Setup Bazel with shared caching
+  uses: bazel-contrib/setup-bazel@0.14.0
+  with:
+    disk-cache: true
+    repository-cache: true
+    bazelisk-cache: true
+```
+
+### Benefits
+
+- **`disk-cache`**: Stores compiled Bazel outputs across jobs.
+- **`repository-cache`**: Caches external dependencies (e.g., modules, WORKSPACE fetches).
+- **`bazelisk-cache`**: Avoids re-downloading Bazel binaries.
+
+This setup significantly reduces CI build time and improves reuse across different workflows.
+
+
 ### **Summary**
 ✅ **Standardized** CI/CD workflows across all projects  
 ✅ **Reusable & Maintainable** with centralized updates  
