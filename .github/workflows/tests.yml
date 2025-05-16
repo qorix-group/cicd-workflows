@@ -11,14 +11,22 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-name: Tests 
+name: Tests
+
 on:
   workflow_call:
+    inputs:
+      bazel-target:
+        description: "Custom Bazel target to run (e.g.: 'test //src/...')"
+        required: false
+        default: "test //..."
+        type: string
 
 jobs:
   unit-tests:
     name: Test Execution
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -32,5 +40,7 @@ jobs:
 
       - name: Run Tests via Bazel
         run: |
-          bazel test //...
+          echo "Running: bazel ${{ inputs.bazel-target }}"
+          bazel ${{ inputs.bazel-target }}
+
 
