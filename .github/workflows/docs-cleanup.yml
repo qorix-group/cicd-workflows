@@ -71,7 +71,7 @@ jobs:
 
           jq '[.[] | select((.version | IN($folders[])))]' --argjson folders "$(ls -1 | jq -R -s -c 'split("\n")[:-1]')" versions_tmp.json > versions_tmp_clean.json
 
-          jq '[.[] | select(.version != "main")] | sort_by(.version) | [{"version": "main", "url": "https://eclipse-score.github.io/score/main/"}] + .' versions_tmp_clean.json > versions.json
+          jq --arg repo "${{ github.repository }}" '[.[] | select(.version != "main")] | sort_by(.version) | [{"version": "main", "url": ("https://eclipse-score.github.io/" + ($repo | split("/")[1]) + "/main/")}] + .' versions_tmp_clean.json > versions.json
 
           rm versions_tmp.json versions_tmp_clean.json
 
