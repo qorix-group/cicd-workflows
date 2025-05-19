@@ -93,6 +93,6 @@ jobs:
 
       - name: Deploy 🚀
         id: pages-deployment
-        uses: ./.github/actions/deploy-versioned-pages
+        uses: ./cicd-workflows/.github/actions/deploy-versioned-pages
         with:
-          source_folder: extracted_docs    
+          source_folder: extracted_docs
