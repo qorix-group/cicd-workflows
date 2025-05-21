@@ -26,6 +26,11 @@ on:
         required: false
         default: "main"
         type: string
+      bazel-target:
+        description: "The Bazel target to build (e.g., //docs:github_pages)"
+        required: true
+        type: string
+        default: "//docs:github-pages"
 
 jobs:
   docs-build:
@@ -60,7 +65,14 @@ jobs:
 
       - name: Build documentation
         run: |
-          bazel build //docs:github-pages && cp bazel-bin/docs/github-pages.tar .
+          bazel build ${{ inputs.bazel-target }}
+
+          # Strip // and use path form to find the tarball
+          TARGET="${{ inputs.bazel-target }}"
+          TARGET_PATH="${TARGET#//}"                 # remove leading //
+          TARGET_PATH="${TARGET_PATH/:/\/}"          # replace : with /
+          cp bazel-bin/$TARGET_PATH.tar github-pages.tar
+
 
       - name: Upload documentation artifact
         uses: actions/upload-artifact@v4.4.0
