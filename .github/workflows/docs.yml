@@ -28,7 +28,7 @@ on:
         type: string
       bazel-target:
         description: "The Bazel target to build (e.g., //docs:github_pages)"
-        required: true
+        required: false
         type: string
         default: "//docs:github-pages"
 
