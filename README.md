@@ -6,14 +6,15 @@ These workflows integrate with **Bazel** and provide a consistent way to run **d
 
 ## Available Workflows
 
-| Workflow | Description |
-|----------|-------------|
-| **Documentation Build** | Builds project documentation and deploys it to GitHub Pages |
-| **License Check** | Verifies OSS licenses and compliance |
-| **Static Code Analysis** | Runs Clang-Tidy, Clippy, Pylint, and other linters based on project type |
-| **Tests** | Executes tests using GoogleTest, Rust test or pytest |
-| **Formatting Check** | Verifies code formatting using Bazel-based tools |
-| **Copyright Check** | Ensures all source files have the required copyright headers |
+| Workflow                | Description                                                        |
+|-------------------------|--------------------------------------------------------------------|
+| **Documentation Build** | Builds project documentation and deploys it to GitHub Pages         |
+| **Documentation Cleanup** | Cleans up old documentation versions from the `gh-pages` branch   |
+| **License Check**       | Verifies OSS licenses and compliance                               |
+| **Static Code Analysis**| Runs Clang-Tidy, Clippy, Pylint, and other linters                 |
+| **Tests**               | Executes tests using GoogleTest, Rust test, or pytest              |
+| **Formatting Check**    | Verifies code formatting using Bazel-based tools                   |
+| **Copyright Check**     | Ensures all source files have the required copyright headers        |
 
 ---
 
@@ -37,6 +38,9 @@ jobs:
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     with:
       retention-days: 3
+      # Optionally override:
+      # workflow-version: main
+      # bazel-target: "//docs:github-pages"
 ```
 This workflow:
 
@@ -44,11 +48,34 @@ This workflow:
 ✅ Uploads it as an artifact  
 ✅ Deploys it to **GitHub Pages** on push to `main`  
 
-> ⚠️ **Note:** We will clarify the `docs` target after it gets decoupled from the current `score` repo.
+---
+
+### **2️ Documentation Cleanup Workflow**
+**Usage Example**
+```yaml
+name: Documentation Cleanup
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # every day at 2am UTC
+
+jobs:
+  docs-cleanup:
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs-cleanup.yml@main
+    with:
+      workflow-version: main
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+This workflow:
+
+✅ Cleans up old documentation versions from the `gh-pages` branch  
+✅ Runs daily at 2am UTC  
 
 ---
 
-### **2️ License Check Workflow**
+### **3️ License Check Workflow**
 **Usage Example**
 ```yaml
 name: License Check CI
@@ -80,7 +107,7 @@ This workflow:
 
 ---
 
-### **3️ Static Code Analysis Workflow**
+### **4️ Static Code Analysis Workflow**
 **Usage Example**
 ```yaml
 name: Static Analysis CI
@@ -108,7 +135,7 @@ This workflow:
 
 ---
 
-### **4️ Tests Workflow**
+### **5️ Tests Workflow**
 **Usage Example**
 ```yaml
 name: Test CI
@@ -131,7 +158,7 @@ This workflow:
 
 ---
 
-### **5️ Copyright Check Workflow**
+### **6️ Copyright Check Workflow**
 **Usage Example**
 ```yaml
 name: Copyright Check CI
@@ -158,7 +185,7 @@ This workflow:
 
 ---
 
-### **6️ Formatting Check Workflow**
+### **7️ Formatting Check Workflow**
 **Usage Example**
 ```yaml
 name: Formatting Check CI
