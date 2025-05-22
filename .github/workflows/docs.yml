@@ -105,6 +105,6 @@ jobs:
 
       - name: Deploy 🚀
         id: pages-deployment
-        uses: ./cicd-workflows/.github/actions/deploy-versioned-pages
+        uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@${{ inputs.workflow-version }}
         with:
           source_folder: extracted_docs
