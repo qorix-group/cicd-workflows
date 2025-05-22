@@ -91,6 +91,8 @@ jobs:
       id-token: write
       contents: write
       pull-requests: write
+    env:
+      WORKFLOW_VERSION: ${{ inputs.workflow-version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -105,6 +107,6 @@ jobs:
 
       - name: Deploy 🚀
         id: pages-deployment
-        uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@${{ inputs.workflow-version }}
+        uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@${{ env.WORKFLOW_VERSION }}
         with:
           source_folder: extracted_docs
