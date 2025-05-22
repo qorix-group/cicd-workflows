@@ -30,7 +30,7 @@ on:
         description: "The Bazel target to build (e.g., //docs:github_pages)"
         required: false
         type: string
-        default: "//docs:github-pages"
+        default: "//docs:github_pages"
 
 jobs:
   docs-build:
