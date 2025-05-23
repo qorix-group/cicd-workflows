@@ -28,6 +28,10 @@ inputs:
   create_comment:
     description: "Create a comment on the PR with the URL to the documentation" # in case of PR
     default: "true"
+  deployment_type:
+    description: "Type of deployment: legacy or workflow"
+    required: false
+    default: "workflow"
 
 outputs:
   target_folder:
@@ -107,6 +111,28 @@ runs:
       with:
         folder: version_root
         clean: false
+
+# Workflow-based GitHub Pages deployment
+    - name: Workflow Configure GitHub Pages
+      if: ${{ inputs.deployment_type == 'workflow' }}
+      uses: actions/configure-pages@v3
+
+    - name: Workflow Checkout gh-pages branch
+      if: ${{ inputs.deployment_type == 'workflow' }}
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages-content
+
+    - name: Workflow Upload site artifacts
+      if: ${{ inputs.deployment_type == 'workflow' }}
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: gh-pages-content
+
+    - name: Workflow Deploy site
+      if: ${{ inputs.deployment_type == 'workflow' }}
+      uses: actions/deploy-pages@v4
 
     - name: Find Comment
       if: ${{ github.event_name == 'pull_request_target' }}

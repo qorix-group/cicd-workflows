@@ -21,6 +21,11 @@ on:
         required: false
         default: "main"
         type: string
+      deployment_type:
+        description: "Type of deployment: legacy or workflow"
+        type: string
+        required: false
+        default: "workflow"
     secrets:
       token:
         description: "GitHub Token"
@@ -81,3 +86,25 @@ jobs:
           branch: gh-pages
           folder: .
           commit-message: "Daily cleanup of outdated documentation"
+
+     # Workflow-based GitHub Pages deployment
+      - name: Workflow Configure GitHub Pages
+        if: ${{ inputs.deployment_type == 'workflow' }}
+        uses: actions/configure-pages@v3
+
+      - name: Workflow Checkout gh-pages branch
+        if: ${{ inputs.deployment_type == 'workflow' }}
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-content
+
+      - name: Workflow Upload site artifacts
+        if: ${{ inputs.deployment_type == 'workflow' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages-content
+
+      - name: Workflow Deploy site
+        if: ${{ inputs.deployment_type == 'workflow' }}
+        uses: actions/deploy-pages@v4
