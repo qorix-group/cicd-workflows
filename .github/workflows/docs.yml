@@ -92,6 +92,57 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Ensure gh-pages branch exists with initial files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          if ! git ls-remote --exit-code --heads "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" gh-pages; then
+            echo "gh-pages branch does not exist. Creating it..."
+            git clone --depth=1 "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" repo
+            cd repo
+            git fetch origin main --depth=1
+            AUTHOR_NAME=$(git log origin/main -1 --pretty=format:'%an')
+            AUTHOR_EMAIL=$(git log origin/main -1 --pretty=format:'%ae')
+            git config user.name "$AUTHOR_NAME"
+            git config user.email "$AUTHOR_EMAIL"
+            echo "Using commit identity: $AUTHOR_NAME <$AUTHOR_EMAIL>"
+
+            git checkout --orphan gh-pages
+            git rm -rf . || true
+            REPO_NAME=$(basename "${REPO}")
+
+            touch versions.json
+            echo "[" > versions.json
+            echo "  {" >> versions.json
+            echo "    \"version\": \"main\"," >> versions.json
+            echo "    \"url\": \"https://eclipse-score.github.io/${REPO_NAME}/main/\"" >> versions.json
+            echo "  }" >> versions.json
+            echo "]" >> versions.json
+
+            touch index.html
+            echo '<!DOCTYPE html>' > index.html
+            echo '<html lang="en">' >> index.html
+            echo '<head>' >> index.html
+            echo '    <meta charset="UTF-8">' >> index.html
+            echo '    <meta http-equiv="refresh" content="0; URL=main/">' >> index.html
+            echo '    <title>Redirecting...</title>' >> index.html
+            echo '</head>' >> index.html
+            echo '<body>' >> index.html
+            echo '    <p>If you are not redirected, <a href="main/">click here</a>.</p>' >> index.html
+            echo '</body>' >> index.html
+            echo '</html>' >> index.html
+
+            touch .nojekyll
+            git add versions.json index.html .nojekyll
+            git commit -m "Initialize gh-pages branch with versions.json and index.html"
+            git push origin gh-pages
+            cd ..
+            rm -rf repo
+          else
+            echo "gh-pages branch exists. Skipping creation."
+          fi
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
@@ -107,4 +158,4 @@ jobs:
         id: pages-deployment
         uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@main
         with:
-          source_folder: extracted_docs
+          source_folder: extracted_docs/html
