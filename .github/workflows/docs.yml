@@ -31,6 +31,11 @@ on:
         required: false
         type: string
         default: "//docs:github_pages"
+      deployment_type:
+        description: "Type of deployment: legacy or workflow"
+        type: string
+        required: false
+        default: "workflow"
 
 jobs:
   docs-build:
@@ -159,3 +164,4 @@ jobs:
         uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@main
         with:
           source_folder: extracted_docs/html
+          deployment_type: ${{ inputs.deployment_type }}
