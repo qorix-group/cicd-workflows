@@ -70,14 +70,8 @@ jobs:
 
       - name: Build documentation
         run: |
-          bazel build ${{ inputs.bazel-target }}
-
-          # Strip // and use path form to find the tarball
-          TARGET="${{ inputs.bazel-target }}"
-          TARGET_PATH="${TARGET#//}"                 # remove leading //
-          TARGET_PATH="${TARGET_PATH/:/\/}"          # replace : with /
-          cp bazel-bin/$TARGET_PATH.tar github-pages.tar
-
+          bazel run ${{ inputs.bazel-target }}
+          tar -cf github-pages.tar _build
 
       - name: Upload documentation artifact
         uses: actions/upload-artifact@v4.4.0
@@ -117,12 +111,13 @@ jobs:
             git checkout --orphan gh-pages
             git rm -rf . || true
             REPO_NAME=$(basename "${REPO}")
+            OWNER_NAME="${REPO%%/*}"
 
             touch versions.json
             echo "[" > versions.json
             echo "  {" >> versions.json
             echo "    \"version\": \"main\"," >> versions.json
-            echo "    \"url\": \"https://eclipse-score.github.io/${REPO_NAME}/main/\"" >> versions.json
+            echo "    \"url\": \"https://${OWNER_NAME}.github.io/${REPO_NAME}/main/\"" >> versions.json
             echo "  }" >> versions.json
             echo "]" >> versions.json
 
@@ -163,5 +158,5 @@ jobs:
         id: pages-deployment
         uses: eclipse-score/cicd-workflows/.github/actions/deploy-versioned-pages@main
         with:
-          source_folder: extracted_docs/html
+          source_folder: extracted_docs/_build
           deployment_type: ${{ inputs.deployment_type }}
