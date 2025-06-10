@@ -38,6 +38,7 @@ jobs:
     permissions:
       pages: write
       contents: write
+      id-token: write
     steps:
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
