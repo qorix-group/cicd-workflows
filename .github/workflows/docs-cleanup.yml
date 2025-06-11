@@ -13,6 +13,11 @@
 
 name: Daily Documentation Cleanup
 
+permissions:
+  contents: write
+  pages:   write
+  id-token: write
+
 on:
   workflow_call:
     inputs:
@@ -46,11 +51,13 @@ jobs:
           repository: ${{ github.repository }}
           ref: gh-pages
           fetch-depth: 0
+          path: gh-pages-cleanup
 
       - name: Install GitHub CLI
         run: sudo apt-get update && sudo apt-get install -y gh jq
 
       - name: Cleanup old documentation
+        working-directory: gh-pages-cleanup
         env:
           GH_TOKEN: ${{ secrets.token }}
         run: |
@@ -85,7 +92,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: .
+          folder: gh-pages-cleanup
           commit-message: "Daily cleanup of outdated documentation"
 
      # Workflow-based GitHub Pages deployment
