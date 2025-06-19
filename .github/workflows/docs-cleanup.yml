@@ -39,7 +39,7 @@ on:
 jobs:
   docs-cleanup:
     name: Cleanup old documentation
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
     permissions:
       pages: write
       contents: write

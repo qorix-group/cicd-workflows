@@ -246,3 +246,22 @@ This setup significantly reduces CI build time and improves reuse across differe
 ✅ **Standardized** CI/CD workflows across all projects  
 ✅ **Reusable & Maintainable** with centralized updates  
 ✅ **Bazel-powered** for consistent testing & analysis
+
+## 🏃‍♂️ Runner Selection Logic
+
+All workflows in this repository use the following logic for selecting the runner:
+
+```yaml
+runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
+```
+
+This means:
+
+- If your repository defines a variable named `REPO_RUNNER_LABELS` (e.g., in repository or organization settings), its value will be used as the runner label(s).  
+  This allows you to use **self-hosted runners** or any custom runner configuration.
+- If `REPO_RUNNER_LABELS` is **not set**, the workflow will default to GitHub-hosted `ubuntu-latest`.
+
+**Why?**  
+This approach allows forked repositories or projects with special requirements to use their own runners, while everyone else gets a reliable default.
+
+> ℹ️ **Tip:** To use a self-hosted runner, set the `REPO_RUNNER_LABELS` variable in your repository or organization settings to the label(s) of your runner.
