@@ -17,14 +17,14 @@ on:
   workflow_call:
     inputs:
       bazel-test-targets:
-        description: "Bazel targets to test (default: //src/rust/...)"
+        description: "Bazel targets to test (default: //score/...)"
         required: false
-        default: "//src/rust/..."
+        default: "//score/..."
         type: string
       bazel-test-config-flags:
-        description: "Bazel config flags for coverage (e.g., --config=per-x86_64-linux --config=ferrocene-coverage)"
+        description: "Bazel config flags for coverage (e.g., --config=x86_64-linux --config=ferrocene-coverage)"
         required: false
-        default: "--config=per-x86_64-linux --config=ferrocene-coverage"
+        default: "--config=x86_64-linux --config=ferrocene-coverage"
         type: string
       bazel-test-args:
         description: "Extra Bazel args for test (e.g., --nocache_test_results)"
@@ -51,6 +51,11 @@ on:
         required: false
         default: ""
         type: string
+      retention-days:
+        description: "Days to keep uploaded artifacts"
+        required: false
+        default: 30
+        type: number
 
 jobs:
   rust-coverage:
@@ -103,8 +108,9 @@ jobs:
           echo "coverage_path=${coverage_path}" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage HTML
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.coverage-artifact-name }}
           path: ${{ steps.coverage.outputs.coverage_path }}
           if-no-files-found: warn
+          retention-days: ${{ inputs.retention-days }}
