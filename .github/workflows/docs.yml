@@ -172,6 +172,7 @@ jobs:
     runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
     needs: docs-build
     permissions:
+      actions: read
       pages: write
       id-token: write
       contents: write
