@@ -62,6 +62,8 @@ jobs:
     name: Rust Coverage
     runs-on: ${{ vars.runner_labels_ghub_standard_x64 && fromJSON(vars.runner_labels_ghub_standard_x64) || vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
     steps:
+      - uses: eclipse-score/more-disk-space@3fac5780033e636b114cf69e891dc19d640855c2 # v1.1
+
       - name: Checkout repository (Handle all events)
         uses: actions/checkout@v4.2.2
         with:

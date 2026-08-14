@@ -97,6 +97,8 @@ jobs:
           echo "Use pull_request or merge_group instead."
           exit 1
 
+      - uses: eclipse-score/more-disk-space@3fac5780033e636b114cf69e891dc19d640855c2 # v1.1
+
       - name: 📥 Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
